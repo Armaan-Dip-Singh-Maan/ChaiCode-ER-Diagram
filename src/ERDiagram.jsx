@@ -1,116 +1,118 @@
 import { useState } from "react";
 
-const EW = 232, AH = 23, HH = 44, PAD = 9;
+/** Wider boxes so attribute name + SQL type fit on one row */
+const EW = 270, AH = 23, HH = 44, PAD = 9;
 const getH = (n) => HH + n * AH + PAD * 2;
 
+/** PostgreSQL-style types — compact labels so they fit beside attribute names */
 const RAW = [
   {
     id: "Customer", x: 18, y: 52, hue: "#3730a3", light: "#818cf8",
     attrs: [
-      { name: "customer_id", tag: "PK" },
-      { name: "full_name" },
-      { name: "email" },
-      { name: "phone" },
-      { name: "instagram_handle" },
-      { name: "whatsapp_number" },
-      { name: "delivery_address" },
-      { name: "created_at" },
+      { name: "customer_id", tag: "PK", type: "SERIAL" },
+      { name: "full_name", type: "VARCHAR(255)" },
+      { name: "email", type: "VARCHAR(255)" },
+      { name: "phone", type: "VARCHAR(20)" },
+      { name: "instagram_handle", type: "VARCHAR(100)" },
+      { name: "whatsapp_number", type: "VARCHAR(20)" },
+      { name: "delivery_address", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMP" },
     ]
   },
   {
     id: "Order", x: 332, y: 52, hue: "#1e3a8a", light: "#60a5fa",
     attrs: [
-      { name: "order_id", tag: "PK" },
-      { name: "customer_id", tag: "FK" },
-      { name: "order_date" },
-      { name: "total_amount" },
-      { name: "order_notes" },
-      { name: "created_at" },
+      { name: "order_id", tag: "PK", type: "SERIAL" },
+      { name: "customer_id", tag: "FK", type: "BIGINT" },
+      { name: "order_date", type: "DATE" },
+      { name: "total_amount", type: "DECIMAL(10,2)" },
+      { name: "order_notes", type: "TEXT" },
+      { name: "created_at", type: "TIMESTAMP" },
     ]
   },
   {
     id: "Payment", x: 692, y: 52, hue: "#064e3b", light: "#34d399",
     attrs: [
-      { name: "payment_id", tag: "PK" },
-      { name: "order_id", tag: "FK" },
-      { name: "amount_paid" },
-      { name: "payment_method" },
-      { name: "payment_status" },
-      { name: "payment_date" },
-      { name: "transaction_ref" },
+      { name: "payment_id", tag: "PK", type: "SERIAL" },
+      { name: "order_id", tag: "FK", type: "BIGINT" },
+      { name: "amount_paid", type: "DECIMAL(10,2)" },
+      { name: "payment_method", type: "VARCHAR(50)" },
+      { name: "payment_status", type: "VARCHAR(30)" },
+      { name: "payment_date", type: "TIMESTAMP" },
+      { name: "transaction_ref", type: "VARCHAR(100)" },
     ]
   },
   {
     id: "OrderItem", x: 332, y: 410, hue: "#78350f", light: "#fbbf24", isJunction: true,
     attrs: [
-      { name: "order_item_id", tag: "PK" },
-      { name: "order_id", tag: "FK" },
-      { name: "product_id", tag: "FK" },
-      { name: "quantity" },
-      { name: "unit_price" },
-      { name: "selected_size" },
-      { name: "selected_color" },
+      { name: "order_item_id", tag: "PK", type: "SERIAL" },
+      { name: "order_id", tag: "FK", type: "BIGINT" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "quantity", type: "INT" },
+      { name: "unit_price", type: "DECIMAL(10,2)" },
+      { name: "selected_size", type: "VARCHAR(50)" },
+      { name: "selected_color", type: "VARCHAR(50)" },
     ]
   },
   {
     id: "Shipping", x: 692, y: 410, hue: "#7f1d1d", light: "#f87171",
     attrs: [
-      { name: "shipping_id", tag: "PK" },
-      { name: "order_id", tag: "FK" },
-      { name: "recipient_name" },
-      { name: "shipping_address" },
-      { name: "city" },
-      { name: "pincode" },
-      { name: "courier_name" },
-      { name: "tracking_number" },
-      { name: "shipping_status" },
-      { name: "shipped_date" },
-      { name: "delivered_date" },
+      { name: "shipping_id", tag: "PK", type: "SERIAL" },
+      { name: "order_id", tag: "FK", type: "BIGINT" },
+      { name: "recipient_name", type: "VARCHAR(255)" },
+      { name: "shipping_address", type: "TEXT" },
+      { name: "city", type: "VARCHAR(100)" },
+      { name: "pincode", type: "VARCHAR(10)" },
+      { name: "courier_name", type: "VARCHAR(100)" },
+      { name: "tracking_number", type: "VARCHAR(80)" },
+      { name: "shipping_status", type: "VARCHAR(30)" },
+      { name: "shipped_date", type: "DATE" },
+      { name: "delivered_date", type: "DATE" },
     ]
   },
   {
     id: "Product", x: 332, y: 840, hue: "#0c4a6e", light: "#38bdf8",
     attrs: [
-      { name: "product_id", tag: "PK" },
-      { name: "name" },
-      { name: "description" },
-      { name: "base_price" },
-      { name: "category" },
-      { name: "product_type" },
-      { name: "image_url" },
-      { name: "created_at" },
+      { name: "product_id", tag: "PK", type: "SERIAL" },
+      { name: "name", type: "VARCHAR(255)" },
+      { name: "description", type: "TEXT" },
+      { name: "base_price", type: "DECIMAL(10,2)" },
+      { name: "category", type: "VARCHAR(100)" },
+      { name: "product_type", type: "VARCHAR(30)" },
+      { name: "image_url", type: "VARCHAR(500)" },
+      { name: "created_at", type: "TIMESTAMP" },
     ]
   },
   {
     id: "ThriftedDetail", x: 18, y: 840, hue: "#431407", light: "#fb923c",
     attrs: [
-      { name: "thrift_detail_id", tag: "PK" },
-      { name: "product_id", tag: "FK" },
-      { name: "brand" },
-      { name: "size" },
-      { name: "color" },
-      { name: "condition" },
-      { name: "is_available" },
+      { name: "thrift_detail_id", tag: "PK", type: "SERIAL" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "brand", type: "VARCHAR(150)" },
+      { name: "size", type: "VARCHAR(50)" },
+      { name: "color", type: "VARCHAR(50)" },
+      { name: "condition", type: "VARCHAR(50)" },
+      { name: "is_available", type: "BOOLEAN" },
     ]
   },
   {
     id: "HandmadeDetail", x: 692, y: 840, hue: "#3b0764", light: "#c084fc",
     attrs: [
-      { name: "handmade_detail_id", tag: "PK" },
-      { name: "product_id", tag: "FK" },
-      { name: "material" },
-      { name: "is_made_to_order" },
-      { name: "production_time_days" },
+      { name: "handmade_detail_id", tag: "PK", type: "SERIAL" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "material", type: "VARCHAR(255)" },
+      { name: "is_made_to_order", type: "BOOLEAN" },
+      { name: "production_time_days", type: "INT" },
     ]
   },
   {
     id: "Inventory", x: 692, y: 1148, hue: "#042f2e", light: "#2dd4bf",
     attrs: [
-      { name: "inventory_id", tag: "PK" },
-      { name: "product_id", tag: "FK" },
-      { name: "size_variant" },
-      { name: "color_variant" },
-      { name: "quantity_available" },
+      { name: "inventory_id", tag: "PK", type: "SERIAL" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "size_variant", type: "VARCHAR(50)" },
+      { name: "color_variant", type: "VARCHAR(50)" },
+      { name: "quantity_available", type: "INT" },
     ]
   },
 ];
@@ -197,7 +199,7 @@ export default function ERDiagram() {
     },
   ];
 
-  const SVG_W = 950, SVG_H = 1365;
+  const SVG_W = 1000, SVG_H = 1365;
 
   const renderEntity = (e) => {
     const isHov = hovered === e.id;
@@ -233,6 +235,7 @@ export default function ERDiagram() {
           const isPK = a.tag === "PK", isFK = a.tag === "FK";
           const textX = e.x + (a.tag ? 29 : 10);
           const textLen = a.name.length * 6.7;
+          const typeStr = a.type || "";
           return (
             <g key={a.name}>
               {i > 0 && <line x1={e.x + 5} y1={ay} x2={e.x + EW - 5} y2={ay} stroke="rgba(255,255,255,0.04)" strokeWidth={1} />}
@@ -246,13 +249,25 @@ export default function ERDiagram() {
                 </text>
               )}
               <text x={textX} y={ay + 15.5}
-                fill={isPK ? "#fef3c7" : isFK ? "#bae6fd" : "#64748b"}
+                fill={isPK ? "#fef3c7" : isFK ? "#bae6fd" : "#94a3b8"}
                 fontSize={10.5} fontFamily="'JetBrains Mono', monospace">
                 {a.name}
               </text>
               {isPK && (
                 <line x1={textX} y1={ay + 17} x2={textX + textLen} y2={ay + 17}
                   stroke="#fef3c7" strokeWidth={0.8} opacity={0.7} />
+              )}
+              {typeStr && (
+                <text
+                  x={e.x + EW - 7}
+                  y={ay + 15.5}
+                  fill="#475569"
+                  fontSize={7.5}
+                  fontFamily="'JetBrains Mono', monospace"
+                  textAnchor="end"
+                >
+                  {typeStr}
+                </text>
               )}
             </g>
           );
@@ -330,7 +345,7 @@ export default function ERDiagram() {
             Instagram Thrift &amp; Handmade Store
           </h1>
           <p style={{ margin: "4px 0 0", color: "#475569", fontSize: 12 }}>
-            9 entities · 8 relationships · Products, Orders, Payments, Shipping &amp; Inventory
+            9 entities · 8 relationships · PostgreSQL-style data types on each attribute · Products, Orders, Payments, Shipping &amp; Inventory
           </p>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -338,6 +353,7 @@ export default function ERDiagram() {
             { c: "#fbbf24", t: "PK  Primary Key" },
             { c: "#60a5fa", t: "FK  Foreign Key" },
             { c: "#fbbf24", bg: "#78350f", t: "Junction Table" },
+            { c: "#475569", t: "Types  SERIAL, BIGINT, VARCHAR, …" },
           ].map(l => (
             <div key={l.t} style={{
               display: "flex", alignItems: "center", gap: 6,
@@ -367,7 +383,7 @@ export default function ERDiagram() {
             <rect width={SVG_W} height={SVG_H} fill="url(#dot)" />
 
             <text x={18} y={36} fill="rgba(96,165,250,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>ORDER MANAGEMENT LAYER</text>
-            <line x1={14} y1={806} x2={936} y2={806} stroke="#0f172a" strokeWidth={1} strokeDasharray="3 5" />
+            <line x1={14} y1={806} x2={986} y2={806} stroke="#0f172a" strokeWidth={1} strokeDasharray="3 5" />
             <text x={18} y={824} fill="rgba(56,189,248,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>PRODUCT CATALOG LAYER</text>
 
             {connections.map((conn, i) => (
@@ -413,7 +429,7 @@ export default function ERDiagram() {
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
               <thead>
                 <tr style={{ background: "#0a1628" }}>
-                  {["Entity", "Type", "Attrs", "Primary Key", "Foreign Keys", "Purpose"].map(h => (
+                  {["Entity", "Role", "Attrs", "Primary Key", "Foreign Keys", "Purpose"].map(h => (
                     <th key={h} style={{ padding: "8px 13px", color: "#475569", textAlign: "left", fontFamily: "monospace", fontSize: 10, fontWeight: 600, borderBottom: "1px solid #1e293b" }}>{h}</th>
                   ))}
                 </tr>
