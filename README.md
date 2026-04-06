@@ -4,6 +4,8 @@ Interactive ER diagram for an **Instagram Thrift & Handmade Store** database: ni
 
 Built with React (see `src/ERDiagram.jsx`). Run locally with `npm install` and `npm run dev`.
 
+**Live site:** [https://er-diagram-viewer.vercel.app](https://er-diagram-viewer.vercel.app)
+
 ## Screenshots
 
 ### Order management layer
