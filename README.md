@@ -1,10 +1,17 @@
 # ChaiCode-ER-Diagram
 
+[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://er-diagram-viewer.vercel.app)
+
 Interactive ER diagram for an **Instagram Thrift & Handmade Store** database: nine entities, eight relationships, order management and product catalog layers.
 
 Built with React (see `src/ERDiagram.jsx`). Run locally with `npm install` and `npm run dev`.
 
-**Live site:** [https://er-diagram-viewer.vercel.app](https://er-diagram-viewer.vercel.app)
+## Deployment (Vercel)
+
+| | |
+| --- | --- |
+| **Production URL** | [https://er-diagram-viewer.vercel.app](https://er-diagram-viewer.vercel.app) |
+| **Hosting** | [Vercel](https://vercel.com) — connected to this repo; pushes to `main` trigger new deploys |
 
 ## Screenshots
 
