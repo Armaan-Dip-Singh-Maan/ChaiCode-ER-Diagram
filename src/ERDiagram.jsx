@@ -4,129 +4,115 @@ import { useState } from "react";
 const EW = 270, AH = 23, HH = 44, PAD = 9;
 const getH = (n) => HH + n * AH + PAD * 2;
 
-/** PostgreSQL-style types — compact labels */
+/** PostgreSQL-style types — compact labels so they fit beside attribute names */
 const RAW = [
   {
-    id: "User", x: 18, y: 52, hue: "#3730a3", light: "#818cf8",
+    id: "Customer", x: 18, y: 52, hue: "#3730a3", light: "#818cf8",
     attrs: [
-      { name: "user_id", tag: "PK", type: "SERIAL" },
-      { name: "email", type: "VARCHAR(255)" },
+      { name: "customer_id", tag: "PK", type: "SERIAL" },
       { name: "full_name", type: "VARCHAR(255)" },
-      { name: "phone", type: "VARCHAR(30)" },
-      { name: "created_at", type: "TIMESTAMP" },
-      { name: "is_active", type: "BOOLEAN" },
-    ]
-  },
-  {
-    id: "Trainer", x: 365, y: 52, hue: "#1e3a8a", light: "#60a5fa",
-    attrs: [
-      { name: "trainer_id", tag: "PK", type: "SERIAL" },
-      { name: "user_id", tag: "FK", type: "BIGINT" },
-      { name: "bio", type: "TEXT" },
-      { name: "specialization", type: "VARCHAR(150)" },
-      { name: "is_accepting_clients", type: "BOOLEAN" },
+      { name: "email", type: "VARCHAR(255)" },
+      { name: "phone", type: "VARCHAR(20)" },
+      { name: "instagram_handle", type: "VARCHAR(100)" },
+      { name: "whatsapp_number", type: "VARCHAR(20)" },
+      { name: "delivery_address", type: "TEXT" },
       { name: "created_at", type: "TIMESTAMP" },
     ]
   },
   {
-    id: "Client", x: 712, y: 52, hue: "#064e3b", light: "#34d399",
+    id: "Order", x: 332, y: 52, hue: "#1e3a8a", light: "#60a5fa",
     attrs: [
-      { name: "client_id", tag: "PK", type: "SERIAL" },
-      { name: "user_id", tag: "FK", type: "BIGINT" },
-      { name: "goal_summary", type: "TEXT" },
-      { name: "timezone", type: "VARCHAR(64)" },
+      { name: "order_id", tag: "PK", type: "SERIAL" },
+      { name: "customer_id", tag: "FK", type: "BIGINT" },
+      { name: "order_date", type: "DATE" },
+      { name: "total_amount", type: "DECIMAL(10,2)" },
+      { name: "order_notes", type: "TEXT" },
       { name: "created_at", type: "TIMESTAMP" },
     ]
   },
   {
-    id: "Plan", x: 365, y: 318, hue: "#0c4a6e", light: "#38bdf8",
-    attrs: [
-      { name: "plan_id", tag: "PK", type: "SERIAL" },
-      { name: "trainer_id", tag: "FK", type: "BIGINT" },
-      { name: "title", type: "VARCHAR(200)" },
-      { name: "description", type: "TEXT" },
-      { name: "duration_weeks", type: "INT" },
-      { name: "price_cents", type: "BIGINT" },
-      { name: "plan_kind", type: "VARCHAR(40)" },
-      { name: "includes_live_sessions", type: "BOOLEAN" },
-      { name: "workout_diet_abstract", type: "TEXT" },
-    ]
-  },
-  {
-    id: "Subscription", x: 200, y: 628, hue: "#78350f", light: "#fbbf24", isJunction: true,
-    attrs: [
-      { name: "subscription_id", tag: "PK", type: "SERIAL" },
-      { name: "client_id", tag: "FK", type: "BIGINT" },
-      { name: "plan_id", tag: "FK", type: "BIGINT" },
-      { name: "assigned_trainer_id", tag: "FK", type: "BIGINT" },
-      { name: "start_date", type: "DATE" },
-      { name: "end_date", type: "DATE" },
-      { name: "status", type: "VARCHAR(30)" },
-      { name: "created_at", type: "TIMESTAMP" },
-    ]
-  },
-  {
-    id: "Payment", x: 530, y: 628, hue: "#7f1d1d", light: "#f87171",
+    id: "Payment", x: 692, y: 52, hue: "#064e3b", light: "#34d399",
     attrs: [
       { name: "payment_id", tag: "PK", type: "SERIAL" },
-      { name: "subscription_id", tag: "FK", type: "BIGINT" },
-      { name: "amount_cents", type: "BIGINT" },
-      { name: "currency", type: "CHAR(3)" },
-      { name: "status", type: "VARCHAR(30)" },
-      { name: "paid_at", type: "TIMESTAMP" },
-      { name: "provider_ref", type: "VARCHAR(120)" },
+      { name: "order_id", tag: "FK", type: "BIGINT" },
+      { name: "amount_paid", type: "DECIMAL(10,2)" },
+      { name: "payment_method", type: "VARCHAR(50)" },
+      { name: "payment_status", type: "VARCHAR(30)" },
+      { name: "payment_date", type: "TIMESTAMP" },
+      { name: "transaction_ref", type: "VARCHAR(100)" },
     ]
   },
   {
-    id: "Session", x: 18, y: 938, hue: "#431407", light: "#fb923c",
+    id: "OrderItem", x: 332, y: 410, hue: "#78350f", light: "#fbbf24", isJunction: true,
     attrs: [
-      { name: "session_id", tag: "PK", type: "SERIAL" },
-      { name: "trainer_id", tag: "FK", type: "BIGINT" },
-      { name: "client_id", tag: "FK", type: "BIGINT" },
-      { name: "subscription_id", tag: "FK", type: "BIGINT" },
-      { name: "scheduled_start", type: "TIMESTAMPTZ" },
-      { name: "scheduled_end", type: "TIMESTAMPTZ" },
-      { name: "session_type", type: "VARCHAR(40)" },
-      { name: "status", type: "VARCHAR(30)" },
-      { name: "meeting_url", type: "VARCHAR(500)" },
+      { name: "order_item_id", tag: "PK", type: "SERIAL" },
+      { name: "order_id", tag: "FK", type: "BIGINT" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "quantity", type: "INT" },
+      { name: "unit_price", type: "DECIMAL(10,2)" },
+      { name: "selected_size", type: "VARCHAR(50)" },
+      { name: "selected_color", type: "VARCHAR(50)" },
     ]
   },
   {
-    id: "CheckIn", x: 365, y: 938, hue: "#3b0764", light: "#c084fc",
+    id: "Shipping", x: 692, y: 410, hue: "#7f1d1d", light: "#f87171",
     attrs: [
-      { name: "check_in_id", tag: "PK", type: "SERIAL" },
-      { name: "client_id", tag: "FK", type: "BIGINT" },
-      { name: "subscription_id", tag: "FK", type: "BIGINT" },
-      { name: "submitted_at", type: "TIMESTAMPTZ" },
-      { name: "period_label", type: "VARCHAR(40)" },
-      { name: "client_report", type: "TEXT" },
-      { name: "adherence_self_score", type: "SMALLINT" },
-      { name: "photo_urls", type: "TEXT" },
+      { name: "shipping_id", tag: "PK", type: "SERIAL" },
+      { name: "order_id", tag: "FK", type: "BIGINT" },
+      { name: "recipient_name", type: "VARCHAR(255)" },
+      { name: "shipping_address", type: "TEXT" },
+      { name: "city", type: "VARCHAR(100)" },
+      { name: "pincode", type: "VARCHAR(10)" },
+      { name: "courier_name", type: "VARCHAR(100)" },
+      { name: "tracking_number", type: "VARCHAR(80)" },
+      { name: "shipping_status", type: "VARCHAR(30)" },
+      { name: "shipped_date", type: "DATE" },
+      { name: "delivered_date", type: "DATE" },
     ]
   },
   {
-    id: "ProgressEntry", x: 712, y: 628, hue: "#042f2e", light: "#2dd4bf",
+    id: "Product", x: 332, y: 840, hue: "#0c4a6e", light: "#38bdf8",
     attrs: [
-      { name: "progress_id", tag: "PK", type: "SERIAL" },
-      { name: "client_id", tag: "FK", type: "BIGINT" },
-      { name: "subscription_id", tag: "FK", type: "BIGINT" },
-      { name: "recorded_at", type: "DATE" },
-      { name: "weight_kg", type: "DECIMAL(5,2)" },
-      { name: "body_measurements", type: "JSONB" },
-      { name: "notes", type: "TEXT" },
-      { name: "source", type: "VARCHAR(30)" },
+      { name: "product_id", tag: "PK", type: "SERIAL" },
+      { name: "name", type: "VARCHAR(255)" },
+      { name: "description", type: "TEXT" },
+      { name: "base_price", type: "DECIMAL(10,2)" },
+      { name: "category", type: "VARCHAR(100)" },
+      { name: "product_type", type: "VARCHAR(30)" },
+      { name: "image_url", type: "VARCHAR(500)" },
+      { name: "created_at", type: "TIMESTAMP" },
     ]
   },
   {
-    id: "TrainerNote", x: 712, y: 938, hue: "#4c1d95", light: "#a78bfa",
+    id: "ThriftedDetail", x: 18, y: 840, hue: "#431407", light: "#fb923c",
     attrs: [
-      { name: "note_id", tag: "PK", type: "SERIAL" },
-      { name: "trainer_id", tag: "FK", type: "BIGINT" },
-      { name: "client_id", tag: "FK", type: "BIGINT" },
-      { name: "subscription_id", tag: "FK", type: "BIGINT" },
-      { name: "content", type: "TEXT" },
-      { name: "created_at", type: "TIMESTAMPTZ" },
-      { name: "visibility", type: "VARCHAR(20)" },
+      { name: "thrift_detail_id", tag: "PK", type: "SERIAL" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "brand", type: "VARCHAR(150)" },
+      { name: "size", type: "VARCHAR(50)" },
+      { name: "color", type: "VARCHAR(50)" },
+      { name: "condition", type: "VARCHAR(50)" },
+      { name: "is_available", type: "BOOLEAN" },
+    ]
+  },
+  {
+    id: "HandmadeDetail", x: 692, y: 840, hue: "#3b0764", light: "#c084fc",
+    attrs: [
+      { name: "handmade_detail_id", tag: "PK", type: "SERIAL" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "material", type: "VARCHAR(255)" },
+      { name: "is_made_to_order", type: "BOOLEAN" },
+      { name: "production_time_days", type: "INT" },
+    ]
+  },
+  {
+    id: "Inventory", x: 692, y: 1148, hue: "#042f2e", light: "#2dd4bf",
+    attrs: [
+      { name: "inventory_id", tag: "PK", type: "SERIAL" },
+      { name: "product_id", tag: "FK", type: "BIGINT" },
+      { name: "size_variant", type: "VARCHAR(50)" },
+      { name: "color_variant", type: "VARCHAR(50)" },
+      { name: "quantity_available", type: "INT" },
     ]
   },
 ];
@@ -148,135 +134,72 @@ const el = (x1, y1, x2, y2) => {
 export default function ERDiagram() {
   const [hovered, setHovered] = useState(null);
   const em = buildEM();
-  const U = em.User, T = em.Trainer, C = em.Client, Pl = em.Plan,
-    Sub = em.Subscription, Pay = em.Payment, Ses = em.Session,
-    CI = em.CheckIn, PE = em.ProgressEntry, TN = em.TrainerNote;
+  const { Customer: C, Order: O, Payment: P, OrderItem: OI,
+    Shipping: S, Product: PR, ThriftedDetail: TD,
+    HandmadeDetail: HD, Inventory: INV } = em;
 
   const entities = RAW.map(r => em[r.id]);
 
   const connections = [
     {
-      d: el(U.right, U.cy, T.x, T.cy),
-      c1: { x: U.right + 6, y: U.cy - 4, v: "1" },
-      cN: { x: T.x - 4, y: T.cy - 4, v: "0..1", ta: "end" },
-      rel: { x: (U.right + T.x) / 2 - 28, y: Math.min(U.cy, T.cy) - 11, t: "trainer profile" },
+      d: el(C.right, C.cy, O.x, O.cy),
+      c1: { x: C.right + 6, y: C.cy - 4, v: "1" },
+      cN: { x: O.x - 4, y: O.cy - 4, v: "N", ta: "end" },
+      rel: { x: (C.right + O.x) / 2 - 20, y: Math.min(C.cy, O.cy) - 11, t: "places" },
       color: "#818cf8"
     },
     {
-      d: el(U.right, U.cy, C.x, C.cy),
-      c1: { x: U.right + 6, y: U.cy - 4, v: "1" },
-      cN: { x: C.x - 4, y: C.cy - 4, v: "0..1", ta: "end" },
-      rel: { x: (U.right + C.x) / 2 - 22, y: Math.min(U.cy, C.cy) - 11, t: "client profile" },
+      d: el(O.right, O.cy, P.x, P.cy),
+      c1: { x: O.right + 6, y: O.cy - 4, v: "1" },
+      cN: { x: P.x - 4, y: P.cy - 4, v: "1", ta: "end" },
+      rel: { x: (O.right + P.x) / 2 - 18, y: Math.min(O.cy, P.cy) - 11, t: "has payment" },
       color: "#34d399"
     },
     {
-      d: `M ${T.cx},${T.bottom} V ${Pl.y}`,
-      c1: { x: T.cx + 5, y: T.bottom + 12, v: "1" },
-      cN: { x: Pl.cx + 5, y: Pl.y - 6, v: "N" },
-      rel: { x: T.cx + 10, y: (T.bottom + Pl.y) / 2, t: "creates / sells" },
-      color: "#38bdf8"
-    },
-    {
-      d: `M ${C.cx},${C.bottom} V ${Sub.cy} H ${Sub.right}`,
-      c1: { x: C.cx + 5, y: C.bottom + 12, v: "1" },
-      cN: { x: Sub.right + 5, y: Sub.cy - 4, v: "N", ta: "start" },
-      rel: { x: (C.cx + Sub.cx) / 2, y: (C.bottom + Sub.cy) / 2 - 6, t: "enrolls" },
+      d: `M ${O.cx},${O.bottom} V ${OI.y}`,
+      c1: { x: O.cx + 5, y: O.bottom + 12, v: "1" },
+      cN: { x: OI.cx + 5, y: OI.y - 6, v: "N" },
+      rel: { x: O.cx + 8, y: (O.bottom + OI.y) / 2, t: "contains" },
       color: "#fbbf24"
     },
     {
-      d: `M ${Pl.cx},${Pl.bottom} V ${Sub.cy} H ${Sub.x}`,
-      c1: { x: Pl.cx + 5, y: Pl.bottom + 12, v: "1" },
-      cN: { x: Sub.x - 5, y: Sub.cy - 4, v: "N", ta: "end" },
-      rel: { x: Pl.cx - 35, y: (Pl.bottom + Sub.cy) / 2, t: "instance of" },
-      color: "#fbbf24"
-    },
-    {
-      d: `M ${T.cx},${T.bottom + 80} V ${Sub.cy} H ${Sub.x}`,
-      c1: { x: T.cx - 12, y: T.bottom + 50, v: "1" },
-      cN: { x: Sub.x - 5, y: Sub.cy + 12, v: "N", ta: "end" },
-      rel: { x: T.x - 8, y: Sub.cy - 50, t: "assigned coach" },
-      color: "#60a5fa"
-    },
-    {
-      d: el(Sub.right, Sub.cy, Pay.x, Pay.cy),
-      c1: { x: Sub.right + 6, y: Sub.cy - 4, v: "1" },
-      cN: { x: Pay.x - 4, y: Pay.cy - 4, v: "N", ta: "end" },
-      rel: { x: (Sub.right + Pay.x) / 2 - 22, y: Math.min(Sub.cy, Pay.cy) - 11, t: "paid via" },
+      d: `M ${O.right},${O.y + O.h * 0.72} H ${672} V ${S.cy} H ${S.x}`,
+      c1: { x: O.right + 5, y: O.y + O.h * 0.72 - 7, v: "1" },
+      cN: { x: S.x - 5, y: S.cy - 5, v: "1", ta: "end" },
+      rel: { x: 678, y: (O.y + O.h * 0.72 + S.cy) / 2, t: "ships via" },
       color: "#f87171"
     },
     {
-      d: `M ${Sub.cx},${Sub.bottom} V ${Ses.cy} H ${Ses.right}`,
-      c1: { x: Sub.cx - 12, y: Sub.bottom + 12, v: "1" },
-      cN: { x: Ses.right + 4, y: Ses.cy - 4, v: "0..N", ta: "start" },
-      rel: { x: Sub.cx - 45, y: (Sub.bottom + Ses.cy) / 2, t: "scopes (opt.)" },
+      d: `M ${OI.cx},${OI.bottom} V ${PR.y}`,
+      c1: { x: OI.cx + 5, y: OI.bottom + 12, v: "N" },
+      cN: { x: PR.cx + 5, y: PR.y - 6, v: "1" },
+      rel: { x: OI.cx + 8, y: (OI.bottom + PR.y) / 2, t: "refers to" },
+      color: "#38bdf8"
+    },
+    {
+      d: el(TD.right, TD.cy, PR.x, PR.cy),
+      c1: { x: TD.right + 6, y: TD.cy - 4, v: "1" },
+      cN: { x: PR.x - 4, y: PR.cy - 4, v: "0..1", ta: "end" },
+      rel: { x: (TD.right + PR.x) / 2 - 16, y: Math.min(TD.cy, PR.cy) - 11, t: "extends" },
       color: "#fb923c"
     },
     {
-      d: `M ${T.cx},${T.bottom + 120} V ${Ses.cy} H ${Ses.x}`,
-      c1: { x: T.cx - 18, y: T.bottom + 90, v: "1" },
-      cN: { x: Ses.x - 5, y: Ses.cy - 4, v: "N", ta: "end" },
-      rel: { x: T.x - 5, y: Ses.cy - 28, t: "conducts" },
-      color: "#fb923c"
-    },
-    {
-      d: `M ${C.cx},${C.bottom + 40} V ${Ses.cy} H ${Ses.x}`,
-      c1: { x: C.cx + 5, y: C.bottom + 28, v: "1" },
-      cN: { x: Ses.x - 5, y: Ses.cy + 14, v: "N", ta: "end" },
-      rel: { x: C.cx + 14, y: Ses.cy - 36, t: "books / attends" },
-      color: "#fb923c"
-    },
-    {
-      d: `M ${Sub.cx},${Sub.bottom} V ${CI.cy} H ${CI.x}`,
-      c1: { x: Sub.cx + 8, y: Sub.bottom + 12, v: "1" },
-      cN: { x: CI.x - 5, y: CI.cy - 4, v: "N", ta: "end" },
-      rel: { x: (Sub.cx + CI.cx) / 2 - 15, y: (Sub.bottom + CI.cy) / 2 + 8, t: "weekly check-ins" },
+      d: el(PR.right, PR.cy, HD.x, HD.cy),
+      c1: { x: PR.right + 6, y: PR.cy - 4, v: "1" },
+      cN: { x: HD.x - 4, y: HD.cy - 4, v: "0..1", ta: "end" },
+      rel: { x: (PR.right + HD.x) / 2 - 16, y: Math.min(PR.cy, HD.cy) - 11, t: "extends" },
       color: "#c084fc"
     },
     {
-      d: `M ${C.cx},${C.bottom + 60} V ${CI.cy} H ${CI.x}`,
-      c1: { x: C.cx + 5, y: C.bottom + 48, v: "1" },
-      cN: { x: CI.x - 5, y: CI.cy + 12, v: "N", ta: "end" },
-      rel: { x: C.cx + 20, y: CI.cy + 22, t: "submits" },
-      color: "#c084fc"
-    },
-    {
-      d: el(Sub.right, Sub.cy + 35, PE.x, PE.cy),
-      c1: { x: Sub.right + 6, y: Sub.cy + 28, v: "1" },
-      cN: { x: PE.x - 4, y: PE.cy - 4, v: "N", ta: "end" },
-      rel: { x: (Sub.right + PE.x) / 2 - 18, y: PE.cy - 28, t: "progress under" },
+      d: `M ${PR.cx},${PR.bottom} V ${1110} H ${INV.cx} V ${INV.y}`,
+      c1: { x: PR.cx + 5, y: PR.bottom + 12, v: "1" },
+      cN: { x: INV.cx + 5, y: INV.y - 6, v: "N" },
+      rel: { x: (PR.cx + INV.cx) / 2 + 10, y: 1103, t: "stocked in" },
       color: "#2dd4bf"
-    },
-    {
-      d: `M ${C.right},${C.cy + 40} H ${PE.x} V ${PE.y}`,
-      c1: { x: C.right + 6, y: C.cy + 32, v: "1" },
-      cN: { x: PE.cx + 5, y: PE.y - 6, v: "N" },
-      rel: { x: (C.right + PE.x) / 2, y: PE.cy - 52, t: "logs" },
-      color: "#2dd4bf"
-    },
-    {
-      d: `M ${T.cx},${T.bottom + 160} V ${TN.cy} H ${TN.x}`,
-      c1: { x: T.cx + 5, y: T.bottom + 140, v: "1" },
-      cN: { x: TN.x - 5, y: TN.cy - 4, v: "N", ta: "end" },
-      rel: { x: T.cx - 25, y: TN.cy - 30, t: "writes" },
-      color: "#a78bfa"
-    },
-    {
-      d: `M ${C.right},${C.cy + 80} V ${TN.cy} H ${TN.x}`,
-      c1: { x: C.right + 6, y: C.cy + 72, v: "1" },
-      cN: { x: TN.x - 5, y: TN.cy + 12, v: "N", ta: "end" },
-      rel: { x: (C.right + TN.x) / 2 - 10, y: TN.cy + 24, t: "about" },
-      color: "#a78bfa"
-    },
-    {
-      d: `M ${Sub.cx},${Sub.bottom} V ${TN.cy - 20} H ${TN.cx} V ${TN.y}`,
-      c1: { x: Sub.cx - 15, y: Sub.bottom + 8, v: "0..1" },
-      cN: { x: TN.cx + 5, y: TN.y - 6, v: "N" },
-      rel: { x: Sub.cx + 120, y: TN.y - 28, t: "context" },
-      color: "#a78bfa"
     },
   ];
 
-  const SVG_W = 1000, SVG_H = 1280;
+  const SVG_W = 1000, SVG_H = 1365;
 
   const renderEntity = (e) => {
     const isHov = hovered === e.id;
@@ -294,7 +217,7 @@ export default function ERDiagram() {
         {e.isJunction && (
           <g>
             <rect x={e.x + EW - 70} y={e.y + 8} width={64} height={13} rx={3} fill="rgba(0,0,0,0.5)" />
-            <text x={e.x + EW - 38} y={e.y + 18.5} fill="#fed7aa" fontSize={8} textAnchor="middle" fontFamily="monospace" fontWeight="700">ENROLLMENT</text>
+            <text x={e.x + EW - 38} y={e.y + 18.5} fill="#fed7aa" fontSize={8} textAnchor="middle" fontFamily="monospace" fontWeight="700">JUNCTION</text>
           </g>
         )}
 
@@ -355,40 +278,45 @@ export default function ERDiagram() {
 
   const notes = [
     {
-      title: "Coaching vs plans vs sessions vs check-ins",
+      title: "🧵 Thrift vs Handmade",
       hue: "#78350f",
       pts: [
-        "Plan = sellable program template; Subscription = a client’s dated enrollment in that plan.",
-        "Session = scheduled calendar event (consultation, live call, etc.); optional subscription link.",
-        "CheckIn = async weekly (or periodic) client report — not a calendar session.",
-        "TrainerNote is private coach feedback, stored separately from CheckIn and ProgressEntry.",
+        "product_type in Product differentiates the two",
+        "ThriftedDetail: unique piece with is_available bool",
+        "HandmadeDetail: batch/MTO with material & lead time",
+        "Inventory only for handmade (size/color variants)",
+        "Thrift uses is_available instead of stock count",
       ]
     },
     {
-      title: "Workouts & diet (abstract)",
-      hue: "#0c4a6e",
+      title: "🛒 Many-to-Many Orders",
+      hue: "#1e3a8a",
       pts: [
-        "plan_kind + workout_diet_abstract on Plan keeps the ER diagram practical.",
-        "Detailed day-by-day workouts/diets can be separate tables later without changing core coaching relationships.",
-        "includes_live_sessions supports hybrid: routine-only vs live components.",
+        "OrderItem is the junction — Order × Product",
+        "unit_price frozen at time of order (price safety)",
+        "selected_size & selected_color captured per item",
+        "One order can mix thrifted + handmade products",
       ]
     },
     {
-      title: "Payments & many clients per plan",
-      hue: "#7f1d1d",
+      title: "💳 Payment & Shipping",
+      hue: "#064e3b",
       pts: [
-        "Many clients can subscribe to the same Plan; each row in Subscription is one enrollment with start/end.",
-        "Payment links to Subscription (1:N) for renewals, partial payments, or refunds as separate rows.",
-        "assigned_trainer_id supports teams where the selling coach differs from the coach of record.",
+        "Payment is 1:1 with Order per purchase",
+        "payment_status: pending → paid / failed / refunded",
+        "Shipping is 1:1 with Order for delivery tracking",
+        "shipping_status: not_shipped → packed → shipped → delivered",
+        "tracking_number for WhatsApp status updates",
       ]
     },
     {
-      title: "Progress separation",
+      title: "📦 Inventory Design",
       hue: "#042f2e",
       pts: [
-        "ProgressEntry holds weight, measurements JSON — never merged into User or Client as fixed columns.",
-        "CheckIn captures narrative + photos; ProgressEntry captures structured metrics.",
-        "Both optionally tie to subscription_id for reporting per coaching stint.",
+        "Each row = one (size, color) variant of a product",
+        "quantity_available tracks exact stock per variant",
+        "Handmade only — thrift stock is boolean is_available",
+        "Supports batch restock by inserting/updating rows",
       ]
     },
   ];
@@ -414,18 +342,18 @@ export default function ERDiagram() {
         <div>
           <div style={{ fontSize: 9, fontFamily: "monospace", color: "#334155", letterSpacing: 3, marginBottom: 4 }}>DATABASE DESIGN · ER DIAGRAM</div>
           <h1 style={{ margin: 0, fontSize: 19, color: "#e2e8f0", fontWeight: 800, letterSpacing: -0.5 }}>
-            Online Fitness Coaching Platform
+            Instagram Thrift &amp; Handmade Store
           </h1>
           <p style={{ margin: "4px 0 0", color: "#475569", fontSize: 12 }}>
-            10 entities · trainers, clients, plans, subscriptions, sessions, check-ins, progress, payments & coach notes · PK/FK on diagram
+            9 entities · 8 relationships · PostgreSQL-style data types on each attribute · Products, Orders, Payments, Shipping &amp; Inventory
           </p>
         </div>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
           {[
             { c: "#fbbf24", t: "PK  Primary Key" },
             { c: "#60a5fa", t: "FK  Foreign Key" },
-            { c: "#fbbf24", bg: "#78350f", t: "Enrollment hub" },
-            { c: "#475569", t: "Types  SERIAL, JSONB, TIMESTAMPTZ, …" },
+            { c: "#fbbf24", bg: "#78350f", t: "Junction Table" },
+            { c: "#475569", t: "Types  SERIAL, BIGINT, VARCHAR, …" },
           ].map(l => (
             <div key={l.t} style={{
               display: "flex", alignItems: "center", gap: 6,
@@ -454,11 +382,9 @@ export default function ERDiagram() {
             </defs>
             <rect width={SVG_W} height={SVG_H} fill="url(#dot)" />
 
-            <text x={18} y={36} fill="rgba(96,165,250,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>IDENTITY &amp; ROLES</text>
-            <line x1={14} y1={286} x2={986} y2={286} stroke="#0f172a" strokeWidth={1} strokeDasharray="3 5" />
-            <text x={18} y={304} fill="rgba(56,189,248,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>PROGRAMS &amp; COMMERCE</text>
-            <line x1={14} y1={596} x2={986} y2={596} stroke="#0f172a" strokeWidth={1} strokeDasharray="3 5" />
-            <text x={18} y={614} fill="rgba(167,139,250,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>SESSIONS, CHECK-INS &amp; PROGRESS</text>
+            <text x={18} y={36} fill="rgba(96,165,250,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>ORDER MANAGEMENT LAYER</text>
+            <line x1={14} y1={806} x2={986} y2={806} stroke="#0f172a" strokeWidth={1} strokeDasharray="3 5" />
+            <text x={18} y={824} fill="rgba(56,189,248,0.15)" fontSize={10} fontFamily="monospace" letterSpacing={3}>PRODUCT CATALOG LAYER</text>
 
             {connections.map((conn, i) => (
               <g key={i}>
@@ -497,7 +423,7 @@ export default function ERDiagram() {
         <div style={{ marginTop: 18, background: "#060d1a", border: "1px solid #1e293b", borderRadius: 10, overflow: "hidden" }}>
           <div style={{ padding: "11px 16px", borderBottom: "1px solid #1e293b", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <span style={{ color: "#94a3b8", fontSize: 12, fontWeight: 700 }}>Entity Summary</span>
-            <span style={{ color: "#334155", fontSize: 11, fontFamily: "monospace" }}>10 entities · Subscription is the enrollment hub</span>
+            <span style={{ color: "#334155", fontSize: 11, fontFamily: "monospace" }}>9 entities · 3 FKs in OrderItem</span>
           </div>
           <div style={{ overflowX: "auto" }}>
             <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11.5 }}>
@@ -510,23 +436,22 @@ export default function ERDiagram() {
               </thead>
               <tbody>
                 {[
-                  ["User", "Identity", "6", "user_id", "—", "Login & contact; not mixed with progress"],
-                  ["Trainer", "Role", "6", "trainer_id", "user_id", "Coach profile; one trainer : many clients via plans/subs"],
-                  ["Client", "Role", "5", "client_id", "user_id", "Trainee profile; goals & timezone"],
-                  ["Plan", "Catalog", "9", "plan_id", "trainer_id", "Sellable program; abstract workout/diet text"],
-                  ["Subscription", "Enrollment", "8", "subscription_id", "client_id, plan_id, assigned_trainer_id", "Which client, which plan, start/end, status"],
-                  ["Payment", "Billing", "7", "payment_id", "subscription_id", "Charges/refunds; 1:N per subscription"],
-                  ["Session", "Scheduling", "9", "session_id", "trainer_id, client_id, subscription_id?", "Consultations & live calls; sub optional"],
-                  ["CheckIn", "Async", "8", "check_in_id", "client_id, subscription_id", "Weekly reports; separate from Session"],
-                  ["ProgressEntry", "Metrics", "8", "progress_id", "client_id, subscription_id", "Weight & measurements; isolated from User"],
-                  ["TrainerNote", "Feedback", "7", "note_id", "trainer_id, client_id, subscription_id?", "Coach notes distinct from check-ins"],
+                  ["Customer", "Core", "8", "customer_id", "—", "Buyer contact & delivery info"],
+                  ["Order", "Core", "6", "order_id", "customer_id", "Customer purchase record"],
+                  ["Payment", "Core", "7", "payment_id", "order_id", "Payment status per order (1:1)"],
+                  ["Shipping", "Core", "11", "shipping_id", "order_id", "Delivery & tracking per order (1:1)"],
+                  ["OrderItem", "Junction", "7", "order_item_id", "order_id, product_id", "Order ↔ Product many-to-many bridge"],
+                  ["Product", "Core", "8", "product_id", "—", "Unified catalog for both types"],
+                  ["ThriftedDetail", "Extension", "7", "thrift_detail_id", "product_id", "Brand, condition, single-item availability"],
+                  ["HandmadeDetail", "Extension", "5", "handmade_detail_id", "product_id", "Material, MTO flag, production time"],
+                  ["Inventory", "Stock", "5", "inventory_id", "product_id", "Variant-level stock (handmade only)"],
                 ].map(([name, type, attrs, pk, fks, purpose], i) => (
                   <tr key={name} style={{ background: i % 2 ? "#060d1a" : "#040a14" }}>
                     <td style={{ padding: "8px 13px", color: RAW.find(r => r.id === name)?.light || "#94a3b8", fontFamily: "monospace", fontWeight: 600, fontSize: 11 }}>{name}</td>
                     <td style={{ padding: "8px 13px" }}>
                       <span style={{
-                        background: type === "Enrollment" ? "rgba(120,53,15,0.25)" : type === "Role" ? "rgba(30,58,138,0.25)" : type === "Metrics" ? "rgba(4,47,46,0.3)" : "#1e293b",
-                        color: type === "Enrollment" ? "#fbbf24" : type === "Role" ? "#60a5fa" : type === "Metrics" ? "#2dd4bf" : "#64748b",
+                        background: type === "Junction" ? "rgba(120,53,15,0.25)" : type === "Extension" ? "rgba(30,58,138,0.25)" : type === "Stock" ? "rgba(4,47,46,0.3)" : "#1e293b",
+                        color: type === "Junction" ? "#fbbf24" : type === "Extension" ? "#60a5fa" : type === "Stock" ? "#2dd4bf" : "#64748b",
                         borderRadius: 4, padding: "2px 7px", fontSize: 10, fontFamily: "monospace",
                       }}>{type}</span>
                     </td>
