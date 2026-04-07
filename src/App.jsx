@@ -19,20 +19,23 @@ export default function App() {
   });
 
   useEffect(() => {
-    window.location.hash = tab === "fitness" ? "fitness" : "thrift";
+    if (!window.location.hash) {
+      window.location.hash = "thrift";
+    }
+    const onHash = () => {
+      setTab(parseHash());
+    };
+    onHash();
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  useEffect(() => {
     document.title =
       tab === "fitness"
         ? "ER Diagram — Online Fitness Coaching Platform"
         : "ER Diagram — Instagram Thrift & Handmade Store";
   }, [tab]);
-
-  useEffect(() => {
-    const onHash = () => {
-      setTab(parseHash());
-    };
-    window.addEventListener("hashchange", onHash);
-    return () => window.removeEventListener("hashchange", onHash);
-  }, []);
 
   return (
     <div style={{ background: "#020812", minHeight: "100vh" }}>
@@ -54,7 +57,9 @@ export default function App() {
             <button
               key={t.id}
               type="button"
-              onClick={() => setTab(t.id)}
+              onClick={() => {
+                window.location.hash = t.id;
+              }}
               style={{
                 fontFamily: "'JetBrains Mono', ui-monospace, monospace",
                 fontSize: 12,
@@ -73,7 +78,7 @@ export default function App() {
           );
         })}
       </nav>
-      {tab === "thrift" ? <ERDiagram /> : <FitnessCoachingERDiagram />}
+      {tab === "thrift" ? <ERDiagram key="thrift" /> : <FitnessCoachingERDiagram key="fitness" />}
     </div>
   );
 }
