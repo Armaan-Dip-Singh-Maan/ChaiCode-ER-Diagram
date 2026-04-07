@@ -137,7 +137,7 @@ export default function FitnessCoachingERDiagram() {
   const em = buildEM();
   const {
     User: U, Trainer: T, Client: Cl, Plan: P, Subscription: Sub,
-    Payment: Pay, Session: Ses, CheckIn: CI, TrainerNote: TN
+    Payment: Pay, Session: Ses, CheckIn: CI, ProgressEntry: PE, TrainerNote: TN
   } = em;
 
   const entities = RAW.map(r => em[r.id]);
