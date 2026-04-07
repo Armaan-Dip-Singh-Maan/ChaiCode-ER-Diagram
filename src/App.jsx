@@ -8,10 +8,14 @@ const TABS = [
 ];
 
 export default function App() {
+  const parseHash = () => {
+    const h = window.location.hash.replace(/^#/, "");
+    return h === "fitness" || h === "fitfitness" ? "fitness" : "thrift";
+  };
+
   const [tab, setTab] = useState(() => {
     if (typeof window === "undefined") return "thrift";
-    const h = window.location.hash.replace(/^#/, "");
-    return h === "fitness" ? "fitness" : "thrift";
+    return parseHash();
   });
 
   useEffect(() => {
@@ -24,8 +28,7 @@ export default function App() {
 
   useEffect(() => {
     const onHash = () => {
-      const h = window.location.hash.replace(/^#/, "");
-      setTab(h === "fitness" ? "fitness" : "thrift");
+      setTab(parseHash());
     };
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
