@@ -4,9 +4,9 @@
 
 **Repository:** [github.com/Armaan-Dip-Singh-Maan/ChaiCode-ER-Diagram](https://github.com/Armaan-Dip-Singh-Maan/ChaiCode-ER-Diagram)
 
-This repo contains **two interactive ER diagrams** in one app: use the top tabs to switch boards (or open `#thrift` / `#fitness` in the URL).
+This repo contains **three interactive ER diagrams** in one app: use the top tabs to switch boards (or open `#thrift`, `#fitness`, or `#clinic` in the URL).
 
-Built with React (`src/ERDiagram.jsx`, `src/FitnessCoachingERDiagram.jsx`). Run locally with `npm install` and `npm run dev`.
+Built with React (`src/ERDiagram.jsx`, `src/FitnessCoachingERDiagram.jsx`, `src/ClinicERDiagram.jsx`). Run locally with `npm install` and `npm run dev`.
 
 ---
 
@@ -79,6 +79,37 @@ A fitness influencer runs **online coaching**: some clients buy **long-term plan
 - Single coherent board (this repo: interactive pages + optional PNG under `docs/images/`).
 - Readable layout, labeled **PK** / **FK**, cardinalities on relationship lines.
 - Trainers, clients, plans, subscriptions, sessions, check-ins, progress, payments, and separate trainer notes represented with sensible cardinalities.
+
+---
+
+## Page 3 — Clinic appointment & diagnostics (Web Dev Cohort 2026)
+
+Interactive ER diagram for a **clinic** that manages doctors, patients, **appointments** (scheduled intent), **consultations** (actual visits), prescribed **diagnostic tests**, **reports** generated later, and **payments** tied to booking and/or the visit.
+
+### Assignment timeline (Databases / evaluation)
+
+| Milestone | Date & time (2026) |
+| --- | --- |
+| **Start** | Apr 7, 11:30 PM |
+| **Due** | Apr 8, 1:00 PM |
+| **Eval begins** | Apr 8, 1:30 PM |
+| **Eval ends** | Apr 9, 12:29 AM |
+
+### Design highlights
+
+| Topic | How it is modeled |
+| --- | --- |
+| **Appointment vs consultation** | `Appointment` = booked slot and status (cancelled, no-show, etc.). `Consultation` = real encounter; optional `appointment_id` (**NULL** = walk-in). At most one consultation per appointment when the visit occurs. |
+| **Doctor specialty** | `Specialty` is a **reference entity**; `Doctor` references it (scalable reporting). `Department` is separate for physical / org grouping. |
+| **Tests** | `DiagnosticTest` = catalog. `TestOrder` = line items per consultation — **one consultation → many test orders**; tests are **not** duplicated on `Patient` alone. |
+| **Reports** | `Report` is **1:1** with `TestOrder`; `patient_id` on `Report` supports quick patient history without extra joins. |
+| **Payments** | `Payment` links to `patient_id` and optionally `appointment_id` and/or `consultation_id` (booking deposit vs visit/diagnostics); `payment_for` disambiguates. |
+
+**Entities (10):** `Department`, `Specialty`, `Doctor`, `Patient`, `Appointment`, `Consultation`, `DiagnosticTest`, `TestOrder`, `Report`, `Payment`.
+
+### Diagram
+
+Open the **Clinic & Diagnostics (2026)** tab in the app, or use: [https://er-diagram-viewer.vercel.app#clinic](https://er-diagram-viewer.vercel.app#clinic)
 
 ---
 

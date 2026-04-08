@@ -1,16 +1,20 @@
 import { useEffect, useState } from "react";
 import ERDiagram from "./ERDiagram.jsx";
 import FitnessCoachingERDiagram from "./FitnessCoachingERDiagram.jsx";
+import ClinicERDiagram from "./ClinicERDiagram.jsx";
 
 const TABS = [
   { id: "thrift", label: "Instagram Thrift Store" },
   { id: "fitness", label: "Fitness Coaching (ChaiCode)" },
+  { id: "clinic", label: "Clinic & Diagnostics (2026)" },
 ];
 
 export default function App() {
   const parseHash = () => {
     const h = window.location.hash.replace(/^#/, "");
-    return h === "fitness" || h === "fitfitness" ? "fitness" : "thrift";
+    if (h === "fitness" || h === "fitfitness") return "fitness";
+    if (h === "clinic") return "clinic";
+    return "thrift";
   };
 
   const [tab, setTab] = useState(() => {
@@ -34,7 +38,9 @@ export default function App() {
     document.title =
       tab === "fitness"
         ? "ER Diagram — Online Fitness Coaching Platform"
-        : "ER Diagram — Instagram Thrift & Handmade Store";
+        : tab === "clinic"
+          ? "ER Diagram — Clinic Appointment & Diagnostics"
+          : "ER Diagram — Instagram Thrift & Handmade Store";
   }, [tab]);
 
   return (
@@ -49,6 +55,7 @@ export default function App() {
           position: "sticky",
           top: 0,
           zIndex: 50,
+          flexWrap: "wrap",
         }}
       >
         {TABS.map((t) => {
@@ -78,7 +85,9 @@ export default function App() {
           );
         })}
       </nav>
-      {tab === "thrift" ? <ERDiagram key="thrift" /> : <FitnessCoachingERDiagram key="fitness" />}
+      {tab === "thrift" && <ERDiagram key="thrift" />}
+      {tab === "fitness" && <FitnessCoachingERDiagram key="fitness" />}
+      {tab === "clinic" && <ClinicERDiagram key="clinic" />}
     </div>
   );
 }
