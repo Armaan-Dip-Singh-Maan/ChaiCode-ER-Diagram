@@ -2,11 +2,13 @@ import { useEffect, useState } from "react";
 import ERDiagram from "./ERDiagram.jsx";
 import FitnessCoachingERDiagram from "./FitnessCoachingERDiagram.jsx";
 import ClinicERDiagram from "./ClinicERDiagram.jsx";
+import SmartElevatorERDiagram from "./SmartElevatorERDiagram.jsx";
 
 const TABS = [
   { id: "thrift", label: "Instagram Thrift Store" },
   { id: "fitness", label: "Fitness Coaching (ChaiCode)" },
   { id: "clinic", label: "Clinic & Diagnostics (2026)" },
+  { id: "elevator", label: "Smart Elevator (2026)" },
 ];
 
 export default function App() {
@@ -14,6 +16,7 @@ export default function App() {
     const h = window.location.hash.replace(/^#/, "");
     if (h === "fitness" || h === "fitfitness") return "fitness";
     if (h === "clinic") return "clinic";
+    if (h === "elevator") return "elevator";
     return "thrift";
   };
 
@@ -40,7 +43,9 @@ export default function App() {
         ? "ER Diagram — Online Fitness Coaching Platform"
         : tab === "clinic"
           ? "ER Diagram — Clinic Appointment & Diagnostics"
-          : "ER Diagram — Instagram Thrift & Handmade Store";
+          : tab === "elevator"
+            ? "ER Diagram — Smart Elevator Control Platform"
+            : "ER Diagram — Instagram Thrift & Handmade Store";
   }, [tab]);
 
   return (
@@ -88,6 +93,7 @@ export default function App() {
       {tab === "thrift" && <ERDiagram key="thrift" />}
       {tab === "fitness" && <FitnessCoachingERDiagram key="fitness" />}
       {tab === "clinic" && <ClinicERDiagram key="clinic" />}
+      {tab === "elevator" && <SmartElevatorERDiagram key="elevator" />}
     </div>
   );
 }

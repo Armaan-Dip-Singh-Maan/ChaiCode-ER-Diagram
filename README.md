@@ -4,9 +4,9 @@
 
 **Repository:** [github.com/Armaan-Dip-Singh-Maan/ChaiCode-ER-Diagram](https://github.com/Armaan-Dip-Singh-Maan/ChaiCode-ER-Diagram)
 
-This repo contains **three interactive ER diagrams** in one app: use the top tabs to switch boards (or open `#thrift`, `#fitness`, or `#clinic` in the URL).
+This repo contains **four interactive ER diagrams** in one app: use the top tabs to switch boards (or open `#thrift`, `#fitness`, `#clinic`, or `#elevator` in the URL).
 
-Built with React (`src/ERDiagram.jsx`, `src/FitnessCoachingERDiagram.jsx`, `src/ClinicERDiagram.jsx`). Run locally with `npm install` and `npm run dev`.
+Built with React (`src/ERDiagram.jsx`, `src/FitnessCoachingERDiagram.jsx`, `src/ClinicERDiagram.jsx`, `src/SmartElevatorERDiagram.jsx`). Run locally with `npm install` and `npm run dev`.
 
 ---
 
@@ -110,6 +110,38 @@ Interactive ER diagram for a **clinic** that manages doctors, patients, **appoin
 ### Diagram
 
 Open the **Clinic & Diagnostics (2026)** tab in the app, or use: [https://er-diagram-viewer.vercel.app#clinic](https://er-diagram-viewer.vercel.app#clinic)
+
+---
+
+## Page 4 — Smart elevator control (Web Dev Cohort 2026)
+
+Interactive ER diagram for **LiftGrid-style** smart elevator platforms: multiple **buildings**, **floors**, **service zones** (banks), **shafts** and **elevators**, an **elevator–floor** junction for service ranges, **floor requests**, **ride assignments** (one allocation per request), **ride trip logs** for analytics, **elevator live state** (status separated from static car config), and **maintenance** history.
+
+### Assignment timeline (Databases / evaluation)
+
+| Milestone | Date & time (2026) |
+| --- | --- |
+| **Start** | Apr 9, 10:15 PM |
+| **Due** | May 10, 12:29 PM |
+| **Eval begins** | May 10, 12:30 PM |
+| **Eval ends** | May 10, 1:00 PM |
+
+### Design highlights
+
+| Topic | How it is modeled |
+| --- | --- |
+| **Building vs movement** | `Elevator` holds only configuration; `RideTripLog` and `RideAssignment` hold operational data; `ElevatorLiveState` holds current status. |
+| **Floors ↔ cars** | `ElevatorFloorService` junction: M:N between elevators and floors. |
+| **Request → dispatch** | `FloorRequest` then `RideAssignment` with **unique** `request_id`; optional `PlatformUser`. |
+| **Maintenance** | `MaintenanceRecord` 1:N from elevator; append-only history; live `OUT_OF_SERVICE` / `MAINTENANCE` on `ElevatorLiveState`. |
+
+**Entities (12):** `Building`, `ServiceZone`, `Floor`, `ElevatorShaft`, `Elevator`, `ElevatorFloorService`, `ElevatorLiveState`, `PlatformUser`, `FloorRequest`, `RideAssignment`, `RideTripLog`, `MaintenanceRecord`.
+
+### Diagram
+
+Open the **Smart Elevator (2026)** tab in the app, or use: [https://er-diagram-viewer.vercel.app#elevator](https://er-diagram-viewer.vercel.app#elevator)
+
+Mermaid source for the same model (exports): see sibling folder [`Webdev-Cohort` / `ERD Diagram` / `smart-elevator-erd.mmd`](https://github.com/Armaan-Dip-Singh-Maan/Webdev-Cohort/blob/main/ERD%20Diagram/smart-elevator-erd.mmd).
 
 ---
 
